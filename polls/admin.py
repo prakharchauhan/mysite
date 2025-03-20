@@ -1,6 +1,7 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-from .models import Question, Choice
+from .models import Question, Choice, CustomUser
 
 
 class ChoiceInline(admin.TabularInline):
@@ -24,10 +25,29 @@ class ChoiceAdmin(admin.ModelAdmin):
     def choice_question_text(self, obj):
         return obj.question.question_text
     def voters(self, obj):
-        return f"{obj.votes}(Voted by:{', '.join([user.username for user in obj.voter.all()])})"
+        return f"{obj.votes}(Voted by:{', '.join([user.email for user in obj.voter.all()])})"
     
     voters.short_description ="Votes & Voters"
+
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+    list_display = ("email", "full_name", "is_staff", "is_superuser", "is_active")
+    search_fields = ("email", "full_name")
+    ordering = ("email",)
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Personal Info", {"fields": ("full_name",)}),
+        ("Permissions", {"fields": ("is_staff", "is_superuser", "is_active", "groups", "user_permissions")}),
+        ("Important dates", {"fields": ("last_login",)}),
+    )
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": ("email", "full_name", "password1", "password2", "is_staff", "is_superuser", "is_active"),
+        }),
+    )
 admin.site.register(Choice, ChoiceAdmin)
 admin.site.register(Question, QuestionAdmin)
+admin.site.register(CustomUser, CustomUserAdmin)
 
 # Register your models here.

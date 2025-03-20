@@ -12,4 +12,5 @@ urlpatterns = [
     path("login/", views.custom_login, name="login"),
     path("logout/", views.custom_logout, name="logout"),
     path("register/", views.register, name="register"),
+    path("debug_cookies/", views.debug_cookies, name="debug_cookies")
 ]

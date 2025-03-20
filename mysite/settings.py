@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = "polls.CustomUser"
 
 # Application definition
 
@@ -75,6 +76,8 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 LOGIN_URL = "/polls/login/"
 LOGIN_REDIRECT_URL = "/polls/"
 LOGOUT_REDIRECT_URL = "/polls/login/"
+SESSION_COOKIE = "user_sessionid"
+ADMIN_COOKIE_NAME = "admin_sessionid"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 

@@ -2,15 +2,18 @@ from django.db.models import F
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
-from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth import authenticate, login,logout, get_user_model
 from django.views import generic
 from django.utils import timezone
 from django.contrib import messages
 from .models import Choice, Question
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+#from django.contrib.auth.forms import UserCreationForm
 from django.utils.decorators import method_decorator
+from django.http import JsonResponse
+from .forms import CustomUserCreationForm
 
+User = get_user_model()
 @method_decorator(login_required(login_url='/polls/login/'), name='dispatch')
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
@@ -35,9 +38,9 @@ class ResultsView(generic.DetailView):
 def custom_login(request):
     #import pdb;pdb.set_trace()
     if request.method == 'POST':
-        username = request.POST['username']
+        email = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=email, password=password)
         
         if user is not None:
             login(request, user)
@@ -76,7 +79,7 @@ def vote(request, question_id):
     
 def register(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)  
@@ -84,6 +87,12 @@ def register(request):
         else:
             messages.error(request, "Registration failed. Please check the details.")
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     
     return render(request, "polls/register.html", {"form": form})
+
+"""def go_home(request):
+    return reverse("polls:index")"""
+
+def debug_cookies(request):
+    return JsonResponse(dict(request.COOKIES))
