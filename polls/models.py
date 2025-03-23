@@ -8,6 +8,8 @@ from django.conf import settings
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField("date published", blank=True,null=True)
+    is_multiple_choice = models.BooleanField(default=False)
+    is_restricted = models.BooleanField(default=False)
     def __str__(self):
         return self.question_text
     @admin.display(
@@ -44,7 +46,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+
     objects = CustomUserManager() #obj
+
     groups = models.ManyToManyField(Group, related_name="customuser_set", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="customuser_set", blank=True)
     USERNAME_FIELD = "email"

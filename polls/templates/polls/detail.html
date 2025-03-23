@@ -13,12 +13,21 @@
     <form action="{% url 'polls:vote' question.id %}" method="post" class="mt-3">
         {% csrf_token %}
         <div class="list-group">
-            {% for choice in question.choice_set.all %}
-                <label class="list-group-item">
-                    <input type="radio" name="choice" value="{{ choice.id }}" class="form-check-input">
-                    {{ choice.choice_text }}
-                </label>
-            {% endfor %}
+            {%if question.is_multiple_choice%}
+                {% for choice in question.choice_set.all %}
+                    <label class="list-group-item">
+                        <input type="checkbox" name="choices" value="{{ choice.id }}" class="form-check-input">
+                        {{ choice.choice_text }}
+                    </label>
+                {% endfor %}
+            {% else %}
+                {% for choice in question.choice_set.all %}
+                    <label>
+                        <input type="radio" name="choice" value="{{ choice.id }}" required>
+                        {{ choice.choice_text }}
+                    </label><br>
+                {% endfor %}
+            {% endif %}
         </div>
         <button type="submit" class="btn btn-primary mt-3">Vote</button>
     </form>
