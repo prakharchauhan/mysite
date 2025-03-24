@@ -6,12 +6,14 @@ from django.contrib.auth import authenticate, login,logout, get_user_model
 from django.views import generic
 from django.utils import timezone
 from django.contrib import messages
-from .models import Choice, Question
+from .models import Choice, Question, CustomUser
 from django.contrib.auth.decorators import login_required
 #from django.contrib.auth.forms import UserCreationForm
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, OTPVerificationForm
+from .tasks import send_otp_email
+import random
 
 User = get_user_model()
 @method_decorator(login_required(login_url='/polls/login/'), name='dispatch')
@@ -121,15 +123,54 @@ def register(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)  
-            return redirect("polls:index")
+            """user = form.save()
+            login(request, user) """
+            request.session["registration_data"]=form.cleaned_data
+            email = form.cleaned_data["email"]
+            otp =str(random.randint(100000, 999999))
+            request.session["otp"] = otp
+            send_otp_email.delay(email, otp)
+            messages.success(request, "OTP has been sent to your email.")
+            return redirect("polls:verify")
+        
         else:
             messages.error(request, "Registration failed. Please check the details.")
     else:
         form = CustomUserCreationForm()
     
     return render(request, "polls/register.html", {"form": form})
+
+def otp_verify(request):
+    """Step 2: Verify OTP and create the user if valid."""
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+        stored_otp = request.session.get("otp")
+        registration_data = request.session.get("registration_data")
+
+        if not stored_otp or not registration_data:
+            messages.error(request, "Session expired or invalid request. Please register again.")
+            return redirect("polls:register")
+
+        if entered_otp == stored_otp:
+            # Create user using manager to ensure password hashing
+            user = CustomUser.objects.create_user(
+                email=registration_data["email"],
+                full_name=registration_data["full_name"],
+                password=registration_data["password1"]
+            )
+
+            # Clear session data after successful registration
+            del request.session["otp"]
+            del request.session["registration_data"]
+
+            # Log in user automatically
+            login(request, user)
+            messages.success(request, "Account created successfully! You are now logged in.")
+            return redirect("polls:index")
+        else:
+            messages.error(request, "Invalid OTP. Please try again.")
+
+    return render(request, "polls/verify.html")
 
 """def go_home(request):
     return reverse("polls:index")"""

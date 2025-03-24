@@ -28,7 +28,13 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "polls.CustomUser"
+# Email Backend for Local Testing (Emails will appear in the console)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+# Celery Configuration
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
 # Application definition
 
 INSTALLED_APPS = [
