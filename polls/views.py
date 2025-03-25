@@ -14,6 +14,8 @@ from django.http import JsonResponse
 from .forms import CustomUserCreationForm, OTPVerificationForm
 from .tasks import send_otp_email
 import random
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.cache import cache
 
 User = get_user_model()
 @method_decorator(login_required(login_url='/polls/login/'), name='dispatch')
@@ -118,13 +120,14 @@ def vote(request, question_id):
         )
     
     return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
-    
+
+
 def register(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            """user = form.save()
-            login(request, user) """
+            #user = form.save()
+            #login(request, user) 
             request.session["registration_data"]=form.cleaned_data
             email = form.cleaned_data["email"]
             otp =str(random.randint(100000, 999999))
@@ -135,13 +138,14 @@ def register(request):
         
         else:
             messages.error(request, "Registration failed. Please check the details.")
+            return redirect("polls:register")
     else:
         form = CustomUserCreationForm()
     
     return render(request, "polls/register.html", {"form": form})
 
 def otp_verify(request):
-    """Step 2: Verify OTP and create the user if valid."""
+    
     if request.method == "POST":
         entered_otp = request.POST.get("otp")
         stored_otp = request.session.get("otp")
@@ -152,18 +156,16 @@ def otp_verify(request):
             return redirect("polls:register")
 
         if entered_otp == stored_otp:
-            # Create user using manager to ensure password hashing
+            
             user = CustomUser.objects.create_user(
                 email=registration_data["email"],
                 full_name=registration_data["full_name"],
                 password=registration_data["password1"]
             )
 
-            # Clear session data after successful registration
             del request.session["otp"]
             del request.session["registration_data"]
 
-            # Log in user automatically
             login(request, user)
             messages.success(request, "Account created successfully! You are now logged in.")
             return redirect("polls:index")

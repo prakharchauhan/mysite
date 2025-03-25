@@ -7,7 +7,7 @@ def send_otp_email(user_email, otp):
     #otp = random.randint(100000, 999999)
     subject = "Your OTP Code"
     message = f"Your OTP is {otp}."
-    from_email = "noreply@example.com"
+    from_email = "prakharchauhan816@gmail.com"
     recipient_list = [user_email]
 
     send_mail(subject, message, from_email, recipient_list)
