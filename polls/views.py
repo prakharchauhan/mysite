@@ -137,8 +137,9 @@ def register(request):
             return redirect("polls:verify")
         
         else:
+            print(form.errors)
             messages.error(request, "Registration failed. Please check the details.")
-            return redirect("polls:register")
+            return render(request, "polls/register.html", {"form": form})
     else:
         form = CustomUserCreationForm()
     

@@ -1,0 +1,43 @@
+name: django_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - ca-certificates=2024.12.31=hca03da5_0
+  - libcxx=14.0.6=h848a8c0_0
+  - libffi=3.4.4=hca03da5_1
+  - ncurses=6.4=h313beb8_0
+  - openssl=3.0.15=h80987f9_0
+  - pip=25.0=py39hca03da5_0
+  - python=3.9.21=hb885b13_1
+  - readline=8.2=h1a28f6b_0
+  - setuptools=75.8.0=py39hca03da5_0
+  - sqlite=3.45.3=h80987f9_0
+  - tk=8.6.14=h6ba3021_0
+  - wheel=0.45.1=py39hca03da5_0
+  - xz=5.6.4=h80987f9_1
+  - zlib=1.2.13=h18a0788_1
+  - pip:
+      - amqp==5.3.1
+      - asgiref==3.8.1
+      - async-timeout==5.0.1
+      - billiard==4.2.1
+      - celery==5.4.0
+      - click==8.1.8
+      - click-didyoumean==0.3.1
+      - click-plugins==1.1.1
+      - click-repl==0.3.0
+      - django==4.2.19
+      - django-bootstrap5==25.1
+      - kombu==5.5.0
+      - prompt-toolkit==3.0.50
+      - psycopg2-binary==2.8.4
+      - python-dateutil==2.9.0.post0
+      - redis==5.2.1
+      - six==1.17.0
+      - sqlparse==0.5.3
+      - typing-extensions==4.12.2
+      - tzdata==2025.1
+      - vine==5.1.0
+      - wcwidth==0.2.13
+prefix: /opt/anaconda3/envs/django_env

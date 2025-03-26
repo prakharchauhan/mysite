@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  django:
+    build: .
+    container_name: django_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - DJANGO_SETTINGS_MODULE=mysite.settings
+    volumes:
+      - ./django_app:/django_app
+    restart: always  
+
+  redis:
+    image: redis:latest
+    container_name: redis_db
+    restart: always  
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    container_name: celery_worker
+    depends_on:
+      redis:
+        condition: service_healthy
+      django:
+        condition: service_started
+    environment:
+      - DJANGO_SETTINGS_MODULE=mysite.settings
+    volumes:
+      - ./django_app:/django_app
+    restart: always  
